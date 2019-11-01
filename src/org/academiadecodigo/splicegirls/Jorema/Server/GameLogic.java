@@ -11,15 +11,11 @@ public class GameLogic {
     public GameLogic(PlayerStore playerStore, QCardStore cardStore) {
 
         this.cardStore = cardStore;
-
         this.playerStore = playerStore;
-
-
 
     }
 
 
-    private void
 
 
 

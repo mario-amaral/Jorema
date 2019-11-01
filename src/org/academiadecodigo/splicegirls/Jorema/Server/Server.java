@@ -6,8 +6,6 @@ public class Server {
 
 
 
-
-
     public Server(GameLogic gameLogic) {
 
         this.gameLogic = gameLogic;
@@ -24,7 +22,6 @@ public class Server {
     private void setUpPlayer() {
 
         //gameLogic.addPlayer(name);
-
     }
 
 
