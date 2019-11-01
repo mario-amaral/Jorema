@@ -6,7 +6,7 @@ public class PlayerStoreImp implements PlayerStore {
 
 
     @Override
-    public void addPlayer() {
+    public void addPlayer(String playerName) {
 
     }
 
