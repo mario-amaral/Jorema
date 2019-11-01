@@ -1,16 +1,18 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
-public interface Prompt {
+import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
+
+public interface Display {
 
     public void showWelcomeMessage();
 
-    public void askName();
+    public String askName();
 
     public void showMessage(String message);
 
-    public void showQCard();
+    public String askQuestionCard(QCard qCard);
 
-    public void showVoteQuestion();
+    public int askVoteQuestion();
 
     public void showResult();
 
