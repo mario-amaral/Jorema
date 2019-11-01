@@ -5,4 +5,18 @@ import org.academiadecodigo.splicegirls.Jorema.Server.Player;
 public class PlayerStoreImp implements PlayerStore {
 
 
+    @Override
+    public void addPlayer() {
+
+    }
+
+    @Override
+    public void removePlayer() {
+
+    }
+
+    @Override
+    public void getPlayer() {
+
+    }
 }
