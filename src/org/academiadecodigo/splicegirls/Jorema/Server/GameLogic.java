@@ -11,10 +11,7 @@ public class GameLogic {
     public GameLogic(PlayerStore playerStore, QCardStore cardStore) {
 
         this.cardStore = cardStore;
-
         this.playerStore = playerStore;
-
-
 
     }
 
@@ -22,6 +19,7 @@ public class GameLogic {
     private void addPlayer() {
 
     }
+
 
 
 

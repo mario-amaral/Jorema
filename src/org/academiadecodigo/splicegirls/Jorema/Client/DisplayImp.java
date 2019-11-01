@@ -1,6 +1,6 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
-public class PromptImp implements Prompt {
+public class DisplayImp implements Display {
 
     private Client client;
 

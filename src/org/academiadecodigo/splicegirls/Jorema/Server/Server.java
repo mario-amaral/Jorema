@@ -16,15 +16,21 @@ public class Server {
 
     public Server() {
 
+
 //        this.gameLogic = gameLogic;
 
     }
 
 
-    private void start() {
+    public Server(GameLogic gameLogic) {
 
+        this.gameLogic = gameLogic;
     }
 
+
+        private void start(){
+
+        }
 
     private void setUpPlayer(String name) {
 
@@ -58,6 +64,7 @@ public class Server {
                     ServerWorker worker = new ServerWorker(name, clientSocket);
                     workers.add(worker);
 
+
                     // Serve the client connection with a new Thread
                     Thread thread = new Thread(worker);
                     thread.setName(name);
@@ -72,6 +79,9 @@ public class Server {
             System.out.println("Unable to start server on port " + port);
         }
 
+
+        //gameLogic.addPlayer(name);
+
     }
 
     /**
@@ -80,17 +90,17 @@ public class Server {
      * @param origClient name of the client thread that the message originated from
      * @param message    the message to broadcast
      */
-    private void sendAll(String origClient, String message) {
+    private void sendAll(String origClient, String message){
 
-        // Acquire lock for safe iteration
-        synchronized (workers) {
+            // Acquire lock for safe iteration
+            synchronized (workers) {
 
-            Iterator<ServerWorker> it = workers.iterator();
-            while (it.hasNext()) {
-                it.next().send(origClient, message);
+                Iterator<ServerWorker> it = workers.iterator();
+                while (it.hasNext()) {
+                    it.next().send(origClient, message);
+                }
+
             }
-
-        }
 
     }
 
