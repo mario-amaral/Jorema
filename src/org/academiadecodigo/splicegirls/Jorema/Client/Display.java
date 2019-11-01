@@ -1,18 +1,22 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
+import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
+
+import java.util.HashMap;
+
 public interface Display {
 
     public void showWelcomeMessage();
 
-    public void askName();
+    public String askName();
 
     public void showMessage(String message);
 
-    public void showQCard();
+    public String askQuestionCard(QCard qcard);
 
-    public void showVoteQuestion();
+    public int askVoteQuestion();
 
-    public void showResult();
+    public void showResult(HashMap<String,String> winnerMap);
 
     public void showFinalResult();
 

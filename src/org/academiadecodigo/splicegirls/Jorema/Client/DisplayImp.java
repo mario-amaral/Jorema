@@ -1,5 +1,5 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
-<<<<<<< HEAD
+
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.integer.IntegerInputScanner;
 import org.academiadecodigo.bootcamp.scanners.integer.IntegerRangeInputScanner;
@@ -8,23 +8,24 @@ import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
 
 import java.util.HashMap;
-=======
->>>>>>> 028ee617235f68c40b83d2bfb83a9eb103d3b319
+
 
 public class DisplayImp implements Display {
 
+
+    public DisplayImp (Client client) {
+    }
+
     private Client client;
-<<<<<<< HEAD
+
     private Prompt prompt = new Prompt(System.in, System.out);
     private static final int NUMBER_OF_PLAYERS = 3;
 
-=======
->>>>>>> 028ee617235f68c40b83d2bfb83a9eb103d3b319
+
 
     @Override
     public void showWelcomeMessage() {
 
-<<<<<<< HEAD
         System.out.println(Messages.WELCOMEMESSAGE);
 
     }
@@ -35,19 +36,12 @@ public class DisplayImp implements Display {
         StringInputScanner askName = new StringInputScanner();
         askName.setMessage(Messages.INSERTNAME);
         return prompt.getUserInput(askName);
-=======
-    }
-
-    @Override
-    public void askName() {
->>>>>>> 028ee617235f68c40b83d2bfb83a9eb103d3b319
 
     }
 
     @Override
     public void showMessage(String message) {
-
-<<<<<<< HEAD
+        System.out.println(message);
 
 
     }
@@ -72,40 +66,29 @@ public class DisplayImp implements Display {
         return prompt.getUserInput(vote);
         
 
-=======
+
     }
+
 
     @Override
-    public void showQCard() {
 
-    }
+    public void showResult(HashMap<String,String> winnerMap) {
 
-    @Override
-    public void showVoteQuestion() {
->>>>>>> 028ee617235f68c40b83d2bfb83a9eb103d3b319
+        System.out.println(Messages.SHOWRESULT);
 
-    }
+        for (String names: winnerMap.keySet()) {
 
-    @Override
-<<<<<<< HEAD
-    public void showResult(HashMap map) {
+            System.out.println(winnerMap.keySet());
 
-        System.out.println(Messages.SHOWRESULT + map.getWinner);
-
-        
+        };
 
 
     }
 
 
-=======
-    public void showResult() {
-
-    }
-
->>>>>>> 028ee617235f68c40b83d2bfb83a9eb103d3b319
     @Override
     public void showFinalResult() {
+
 
     }
 }
