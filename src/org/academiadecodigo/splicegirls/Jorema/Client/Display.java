@@ -1,6 +1,6 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
-public interface Prompt {
+public interface Display {
 
     public void showWelcomeMessage();
 

@@ -23,7 +23,7 @@ public class Server {
 
     private void setUpPlayer() {
 
-        gameLogic.addPlayer(name);
+        //gameLogic.addPlayer(name);
 
     }
 
