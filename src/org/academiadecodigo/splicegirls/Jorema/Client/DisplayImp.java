@@ -8,6 +8,7 @@ import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 
 public class DisplayImp implements Display {
@@ -26,7 +27,7 @@ public class DisplayImp implements Display {
     @Override
     public void showWelcomeMessage() {
 
-        System.out.println(Messages.WELCOMEMESSAGE);
+        System.out.println(Messages.WELCOME_MESSAGE);
 
     }
 
@@ -34,7 +35,7 @@ public class DisplayImp implements Display {
     public String askName() {
 
         StringInputScanner askName = new StringInputScanner();
-        askName.setMessage(Messages.INSERTNAME);
+        askName.setMessage(Messages.INSERT_NAME);
         return prompt.getUserInput(askName);
 
     }
@@ -50,7 +51,7 @@ public class DisplayImp implements Display {
     public String askQuestionCard(QCard qCard) {
 
         StringInputScanner askQCard = new StringInputScanner();
-        askQCard.setMessage(qCard.getMessage());
+       // askQCard.setMessage(qCard.getMessage());
         return prompt.getUserInput(askQCard);
 
     }
@@ -60,12 +61,10 @@ public class DisplayImp implements Display {
     public int askVoteQuestion() {
 
         IntegerInputScanner vote = new IntegerRangeInputScanner(1, NUMBER_OF_PLAYERS);
-        vote.setError(Messages.VOTEERROR);
+        vote.setError(Messages.VOTE_ERROR);
 
-        vote.setMessage(Messages.VOTEQUESTION);
+        vote.setMessage(Messages.VOTE_QUESTION);
         return prompt.getUserInput(vote);
-        
-
 
     }
 
@@ -74,21 +73,27 @@ public class DisplayImp implements Display {
 
     public void showResult(HashMap<String,String> winnerMap) {
 
-        System.out.println(Messages.SHOWRESULT);
+        System.out.println(Messages.SHOW_RESULT);
 
-        for (String names: winnerMap.keySet()) {
+        for (String name: winnerMap.keySet()) {
 
-            System.out.println(winnerMap.keySet());
-
+            System.out.println(name);
+            System.out.println(winnerMap.get(name));
+            
         };
-
 
     }
 
 
     @Override
-    public void showFinalResult() {
+    public void showFinalResult(LinkedList<String> winners) {
 
+        System.out.println(Messages.FINAL_RESULT);
+        for (int i = 0; i < winners.size(); i++) {
 
+            System.out.println(winners.get(i));
+        }
+
+        System.out.println(Messages.THANK_YOU);
     }
 }

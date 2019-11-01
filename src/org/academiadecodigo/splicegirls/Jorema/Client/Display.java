@@ -3,6 +3,7 @@ package org.academiadecodigo.splicegirls.Jorema.Client;
 import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public interface Display {
 
@@ -18,6 +19,6 @@ public interface Display {
 
     public void showResult(HashMap<String,String> winnerMap);
 
-    public void showFinalResult();
+    public void showFinalResult(LinkedList<String> winners);
 
 }
