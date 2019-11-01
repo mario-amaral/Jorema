@@ -1,4 +1,5 @@
 package org.academiadecodigo.splicegirls.Jorema.Server.Store;
+import org.academiadecodigo.splicegirls.Jorema.Server.Player;
 
 public interface PlayerStore {
 
@@ -6,6 +7,6 @@ public interface PlayerStore {
 
     public void removePlayer(String name);
 
-    public void getPlayer(String name);
+    public Player getPlayer(String name);
 
 }

@@ -12,12 +12,6 @@ public class Client {
     // The client socket
     private Socket socket;
 
-    /**
-     * Connects to the specified hostname/port
-     *
-     * @param serverName the hostname of the server to connect to
-     * @param serverPort the tcp port to connect to
-     */
     public Client(String serverName, int serverPort) {
 
         try {
@@ -98,9 +92,6 @@ public class Client {
     // Runnable to handle incoming messages from the server
     private class ChatRunnable implements Runnable {
 
-        /**
-         * @see Thread#run()
-         */
         @Override
         public void run() {
 

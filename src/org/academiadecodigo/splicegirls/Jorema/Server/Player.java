@@ -7,6 +7,9 @@ public class Player {
     private int votes = 0;
     private int score = 0;
 
+    public Player(String name){
+        this.name = name;
+    }
 
     public String getName() {
         return name;

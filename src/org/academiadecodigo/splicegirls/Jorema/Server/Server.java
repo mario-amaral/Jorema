@@ -86,28 +86,20 @@ public class Server {
 
     }
 
-    /**
-     * Broadcast a message to all server connected clients
-     *
-     * @param origClient name of the client thread that the message originated from
-     * @param message    the message to broadcast
-     */
-    private void sendAll(String origClient, String message){
+
+    private void sendAll(String message){
 
             // Acquire lock for safe iteration
             synchronized (workers) {
 
                 for (ServerWorker worker : workers) {
-                    worker.send(origClient, message);
+                    worker.send(message);
                 }
 
             }
 
     }
 
-    /**
-     * Handles client connections
-     */
     private class ServerWorker implements Runnable {
 
         // Immutable state, no need to lock
@@ -116,11 +108,6 @@ public class Server {
         final private BufferedReader in;
         final private BufferedWriter out;
 
-        /**
-         * @param name         the name of the thread handling this client connection
-         * @param clientSocket the client socket connection
-         * @throws IOException upon failure to open socket input and output streams
-         */
 
         private ServerWorker(String name, Socket clientSocket) throws IOException {
 
@@ -132,9 +119,6 @@ public class Server {
 
         }
 
-        /**
-         * @see Thread#run()
-         */
         @Override
         public void run() {
 
@@ -159,7 +143,7 @@ public class Server {
                     } else {
 
                         // Broadcast message to all other clients
-                        sendAll(name, line);
+                        sendAll(line);
                     }
                 }
 
@@ -172,17 +156,11 @@ public class Server {
 
         }
 
-        /**
-         * Send a message to the client served by this thread
-         *
-         * @param origClient the name of the client thread the message originated from
-         * @param message    the message to send
-         */
-        private void send(String origClient, String message) {
+        private void send(String message) {
 
             try {
 
-                out.write(origClient + ": " + message);
+                out.write(message);
                 out.newLine();
                 out.flush();
 
