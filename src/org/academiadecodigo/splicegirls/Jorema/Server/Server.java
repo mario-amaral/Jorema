@@ -28,8 +28,8 @@ public class Server {
 
     private void setUpPlayer(String name) {
 
-        gameLogic.addPlayer(name);
-        System.out.println();
+//        gameLogic.addPlayer(name);
+//        System.out.println();
 
     }
 
