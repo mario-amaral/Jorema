@@ -1,5 +1,7 @@
 package org.academiadecodigo.splicegirls.Jorema.Server;
 
+import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStore;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,7 +14,7 @@ public class Server {
 
     private GameLogic gameLogic;
     private List<ServerWorker> workers = Collections.synchronizedList(new ArrayList<ServerWorker>());
-
+    private PlayerStore playerStore;
 
     public Server() {
 
@@ -22,9 +24,10 @@ public class Server {
     }
 
 
-    public Server(GameLogic gameLogic) {
+    public Server(GameLogic gameLogic, PlayerStore playerStore) {
 
         this.gameLogic = gameLogic;
+        this.playerStore = playerStore;
     }
 
 
@@ -45,8 +48,6 @@ public class Server {
 
         try {
 
-            // Bind to local port
-            System.out.println("Binding to port " + port + ", please wait  ...");
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server started: " + serverSocket);
 
@@ -54,7 +55,7 @@ public class Server {
 
                 // Block waiting for client connections
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client accepted: " + clientSocket);
+                System.out.println("Player client accepted: " + clientSocket);
 
                 try {
 
@@ -63,6 +64,7 @@ public class Server {
                     String name = "Player-" + connectionCount;
                     ServerWorker worker = new ServerWorker(name, clientSocket);
                     workers.add(worker);
+                    playerStore.addPlayer(name);
 
 
                     // Serve the client connection with a new Thread
@@ -84,29 +86,20 @@ public class Server {
 
     }
 
-    /**
-     * Broadcast a message to all server connected clients
-     *
-     * @param origClient name of the client thread that the message originated from
-     * @param message    the message to broadcast
-     */
-    private void sendAll(String origClient, String message){
+
+    private void sendAll(String message){
 
             // Acquire lock for safe iteration
             synchronized (workers) {
 
-                Iterator<ServerWorker> it = workers.iterator();
-                while (it.hasNext()) {
-                    it.next().send(origClient, message);
+                for (ServerWorker worker : workers) {
+                    worker.send(message);
                 }
 
             }
 
     }
 
-    /**
-     * Handles client connections
-     */
     private class ServerWorker implements Runnable {
 
         // Immutable state, no need to lock
@@ -115,11 +108,6 @@ public class Server {
         final private BufferedReader in;
         final private BufferedWriter out;
 
-        /**
-         * @param name         the name of the thread handling this client connection
-         * @param clientSocket the client socket connection
-         * @throws IOException upon failure to open socket input and output streams
-         */
 
         private ServerWorker(String name, Socket clientSocket) throws IOException {
 
@@ -131,15 +119,10 @@ public class Server {
 
         }
 
-        /**
-         * @see Thread#run()
-         */
         @Override
         public void run() {
 
             System.out.println("Thread " + name + " started");
-
-//            setUpPlayer(name);
 
             try {
 
@@ -150,8 +133,9 @@ public class Server {
 
                     if (line == null) {
 
-                        System.out.println("Client " + name + " closed, exiting...");
+                        System.out.println("Player " + name + " closed, exiting...");
 
+                        playerStore.removePlayer(name);
                         in.close();
                         clientSocket.close();
                         continue;
@@ -159,11 +143,12 @@ public class Server {
                     } else {
 
                         // Broadcast message to all other clients
-                        sendAll(name, line);
+                        sendAll(line);
                     }
                 }
 
                 workers.remove(this);
+                playerStore.removePlayer(name);
 
             } catch (IOException ex) {
                 System.out.println("Receiving error on " + name + " : " + ex.getMessage());
@@ -171,17 +156,11 @@ public class Server {
 
         }
 
-        /**
-         * Send a message to the client served by this thread
-         *
-         * @param origClient the name of the client thread the message originated from
-         * @param message    the message to send
-         */
-        private void send(String origClient, String message) {
+        private void send(String message) {
 
             try {
 
-                out.write(origClient + ": " + message);
+                out.write(message);
                 out.newLine();
                 out.flush();
 
