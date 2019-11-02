@@ -1,5 +1,9 @@
 package org.academiadecodigo.splicegirls.Jorema.Server;
 
+import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStore;
+import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStoreImp;
+import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStore;
+import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStoreImp;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
 
 public class ServerApp {
@@ -16,7 +20,11 @@ public class ServerApp {
                 port = Integer.parseInt(args[0]);
             }
 
-            Server JoremaServer = new Server();
+            PlayerStore playerStore = new PlayerStoreImp();
+            QCardStore qCardStore = new QCardStoreImp();
+
+
+            Server JoremaServer = new Server(qCardStore, playerStore);
             JoremaServer.startConnection(port);
 
         } catch (NumberFormatException ex) {

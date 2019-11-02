@@ -17,7 +17,8 @@ public class QCardStoreImp implements QCardStore {
     }
 
     @Override
-    public void getRandomCard() {
+    public String getRandomCard() {
+        return "On christmas, my father always dressed up as _________";
 
     }
 }

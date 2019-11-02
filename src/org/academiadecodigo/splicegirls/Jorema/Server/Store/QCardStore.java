@@ -8,6 +8,6 @@ public interface QCardStore {
 
     public void getCard();
 
-    public void getRandomCard();
+    public String getRandomCard();
 
 }

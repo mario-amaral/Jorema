@@ -33,4 +33,11 @@ public class PlayerStoreImp implements PlayerStore {
     public Player getPlayer(String name) {
         return players.get(name);
     }
+
+    @Override
+    public Map<String, Player> getPlayerTable() {
+        return players;
+    }
+
+
 }

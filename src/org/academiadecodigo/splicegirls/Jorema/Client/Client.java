@@ -73,8 +73,10 @@ public class Client {
             sockOut.writeBytes(display.askName());
 
         display.showMessage(Messages.WAITING_FOR_PLAYERS);
+            System.out.println(" waiting");
 
         waitFor(Messages.GO_COMMAND, sockIn);
+            System.out.println("out of waiting");
 
         while (currentRound <= Values.NUMBER_OF_ROUNDS) {
 

@@ -6,6 +6,7 @@ public class Player {
     private String currentAnswer;
     private int votes = 0;
     private int score = 0;
+    private String myVote = "";
 
     public Player(String name){
         this.name = name;
@@ -49,6 +50,14 @@ public class Player {
 
     public void incrementScore() {
         score++;
+    }
+
+    public String getMyVote() {
+        return myVote;
+    }
+
+    public void setMyVote(String myVote) {
+        this.myVote = myVote;
     }
 
     @Override

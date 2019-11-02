@@ -31,7 +31,7 @@ public class DisplayImp implements Display {
 
         StringInputScanner askName = new StringInputScanner();
         askName.setMessage(Messages.INSERT_NAME);
-        return prompt.getUserInput(askName);
+        return prompt.getUserInput(askName) + "\n";
 
     }
 
@@ -47,7 +47,7 @@ public class DisplayImp implements Display {
 
         StringInputScanner askQCard = new StringInputScanner();
         askQCard.setMessage(qCard);
-        return prompt.getUserInput(askQCard);
+        return prompt.getUserInput(askQCard) + "\n";
 
     }
 
@@ -59,7 +59,9 @@ public class DisplayImp implements Display {
         vote.setError(Messages.VOTE_ERROR);
 
         vote.setMessage(Messages.VOTE_QUESTION);
-        return prompt.getUserInput(vote).toString();
+
+        int index = prompt.getUserInput(vote)-1;
+        return answerList[index] + "\n";
     }
 
 
