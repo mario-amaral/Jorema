@@ -98,8 +98,8 @@ public class Client {
 
             display.showResult(createResultMap(sockIn));
 
-            currentRound++;
             display.showMessage(Messages.ROUND_OVER);
+            currentRound++;
         }
 
             System.out.println("out of the loop");

@@ -22,9 +22,10 @@ public class ServerApp {
 
             PlayerStore playerStore = new PlayerStoreImp();
             QCardStore qCardStore = new QCardStoreImp();
+            GameLogic gameLogic = new GameLogic();
 
 
-            Server JoremaServer = new Server(qCardStore, playerStore);
+            Server JoremaServer = new Server(qCardStore, playerStore, gameLogic);
             JoremaServer.startConnection(port);
 
         } catch (NumberFormatException ex) {

@@ -45,6 +45,40 @@ public class GameLogic {
                 winners.add(p);
             }
         }
+        incrementScore(winners);
         return winners;
+    }
+
+    private void incrementScore(LinkedList<Player> winners) {
+        for (Player p: winners) {
+            p.incrementScore();
+        }
+
+    }
+
+    public LinkedList<Player> countScore(Map<String, Player > hashtable ) {
+
+        Player p;
+
+        LinkedList<Player> finalWinners = new LinkedList<>();
+        int score = 0;
+
+        for (String i: hashtable.keySet()){
+            p = hashtable.get(i);
+
+            if (p.getVotes() > score){
+                score = p.getScore();
+            }
+        }
+
+        for (String i: hashtable.keySet()){
+            p = hashtable.get(i);
+
+            if (p.getScore() == score){
+                finalWinners.add(p);
+            }
+        }
+        incrementScore(finalWinners);
+        return finalWinners;
     }
 }

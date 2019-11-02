@@ -1,6 +1,6 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
-public class ClientApp {
+public class ClientApp2 {
 
     public static void main(String[] args) {
 

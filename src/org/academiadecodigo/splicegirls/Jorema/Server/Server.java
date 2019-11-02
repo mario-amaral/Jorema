@@ -21,7 +21,7 @@ public class Server {
     private PlayerStore playerStore;
 
 
-    public Server(QCardStore qCardStore, PlayerStore playerStore) {
+    public Server(QCardStore qCardStore, PlayerStore playerStore, GameLogic gameLogic) {
 
         this.gameLogic = gameLogic;
         this.qCardStore = qCardStore;
@@ -156,6 +156,7 @@ public class Server {
 
         private void serverScript() {
 
+            int currentRound = 1;
             String name;
 
             name = readClientLine();
@@ -163,23 +164,28 @@ public class Server {
 
             send(checkReady());
 
-            send(qCardStore.getRandomCard());
+            while (currentRound <= Values.NUMBER_OF_ROUNDS) {
 
-            playerStore.getPlayer(name).setCurrentAnswer(readClientLine());
+                send(qCardStore.getRandomCard());
 
-            send(checkReady());
+                playerStore.getPlayer(name).setCurrentAnswer(readClientLine());
 
-            sendAll(playerStore.getPlayer(name).getCurrentAnswer());
+                send(checkReady());
 
-            playerStore.getPlayer(name).setMyVote(readClientLine());
+                sendAll(playerStore.getPlayer(name).getCurrentAnswer());
 
-            System.out.println(playerStore.getPlayer(name).getMyVote());
+                playerStore.getPlayer(name).setMyVote(readClientLine());
 
-            send(checkReady());
+                System.out.println(playerStore.getPlayer(name).getMyVote());
 
-            sendRoundResults();
+                send(checkReady());
 
+                sendRoundResults();
 
+                currentRound++;
+            }
+
+            sendFinalResult();
 
         }
 
@@ -218,6 +224,18 @@ public class Server {
 
             }
         }
+
+        private void sendFinalResult() {
+            LinkedList<Player> finalWinners = gameLogic.countScore(playerStore.getPlayerTable());
+
+            for (Player p: finalWinners) {
+
+                send(p.getName());
+            }
+        }
+
+
+
 
         private void resetReadyCounter(){
 
