@@ -1,9 +1,12 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
+import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
+import org.academiadecodigo.splicegirls.Jorema.Utils.Values;
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Client {
 
@@ -11,15 +14,18 @@ public class Client {
 
     // The client socket
     private Socket socket;
+    private Display display;
 
-    public Client(String serverName, int serverPort) {
+    public Client(String serverName, int serverPort, Display display) {
+
+        this.display = display;
 
         try {
 
             // Connect to server
             socket = new Socket(serverName, serverPort);
             System.out.println("Connected: " + socket);
-            startConnection();
+            //startConnection();
 
         } catch (UnknownHostException ex) {
 
@@ -35,6 +41,128 @@ public class Client {
 
     }
 
+
+    public void init() {
+
+        System.out.println("INIT HAS BEGUN");
+
+        try {
+            BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            DataOutputStream sockOut = new DataOutputStream(socket.getOutputStream());
+
+
+            gameStart(sockIn, sockOut);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+
+
+    public void gameStart(BufferedReader sockIn, DataOutputStream sockOut) {
+
+        int currentRound = 1;
+
+        System.out.println("GAME HAS STARTEDED");
+
+        display.showWelcomeMessage();
+        try {
+            sockOut.writeBytes(display.askName());
+
+        display.showMessage(Messages.WAITING_FOR_PLAYERS);
+
+        waitFor(Messages.GO_COMMAND, sockIn);
+
+        while (currentRound <= Values.NUMBER_OF_ROUNDS) {
+
+            display.showMessage("ROUND " + currentRound);
+
+            String answer = display.askQuestionCard(sockIn.readLine());
+            sockOut.writeBytes(answer);
+
+            display.showMessage(Messages.WAITING_FOR_ANSWERS);
+
+            waitFor(Messages.GO_COMMAND, sockIn);
+
+            String vote = display.askVoteQuestion(createAnswersArray(sockIn));
+            sockOut.writeBytes(vote);
+
+            display.showMessage(Messages.WAITING_FOR_VOTES);
+
+            waitFor(Messages.GO_COMMAND, sockIn);
+
+            display.showResult(createResultMap(sockIn));
+
+            currentRound++;
+            display.showMessage(Messages.ROUND_OVER);
+        }
+
+            System.out.println("out of the loop");
+            display.showFinalResult(createWinnerList(sockIn));
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    private String[] createAnswersArray(BufferedReader sockIn) throws IOException {
+        String[] answers = new String[Values.NUMBER_OF_PLAYERS];
+
+        for (int i = 0; i < answers.length; i++) {
+            answers[i] = sockIn.readLine();
+        }
+        return answers;
+    }
+
+    private HashMap<String, String> createResultMap(BufferedReader sockIn) throws IOException {
+
+        int numOfWinners = Integer.parseInt(sockIn.readLine());
+        HashMap<String, String> resultMap = new HashMap<>();
+
+        for (int i = 0; i < numOfWinners; i++) {
+            resultMap.put(sockIn.readLine(), sockIn.readLine());
+        }
+
+        return resultMap;
+    }
+
+    private LinkedList<String> createWinnerList (BufferedReader sockIn) throws IOException {
+
+        LinkedList<String> winnerList = new LinkedList<>();
+        int numOfWinners = Integer.parseInt(sockIn.readLine());
+
+        for (int i = 0; i < numOfWinners; i++) {
+            winnerList.add(sockIn.readLine());
+        }
+
+        return winnerList;
+    }
+
+
+
+
+    private void waitFor(String key,BufferedReader sockIn){
+        try {
+            while (true){
+                if (sockIn.readLine().equals(key)){
+                    break;
+                }
+            }
+            display.showMessage(Messages.GO_COMMAND);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+/*
     // Starts handling messages
     private void startConnection() {
 
@@ -134,5 +262,5 @@ public class Client {
 
         }
     }
-
+*/
 }

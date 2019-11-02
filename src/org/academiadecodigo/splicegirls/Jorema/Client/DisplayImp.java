@@ -3,6 +3,7 @@ package org.academiadecodigo.splicegirls.Jorema.Client;
 import org.academiadecodigo.bootcamp.Prompt;
 import org.academiadecodigo.bootcamp.scanners.integer.IntegerInputScanner;
 import org.academiadecodigo.bootcamp.scanners.integer.IntegerRangeInputScanner;
+import org.academiadecodigo.bootcamp.scanners.menu.MenuInputScanner;
 import org.academiadecodigo.bootcamp.scanners.string.StringInputScanner;
 import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
@@ -14,13 +15,7 @@ import java.util.LinkedList;
 public class DisplayImp implements Display {
 
 
-    public DisplayImp (Client client) {
-    }
-
-    private Client client;
-
     private Prompt prompt = new Prompt(System.in, System.out);
-    private static final int NUMBER_OF_PLAYERS = 3;
 
 
 
@@ -48,23 +43,23 @@ public class DisplayImp implements Display {
     }
 
     @Override
-    public String askQuestionCard(QCard qCard) {
+    public String askQuestionCard(String qCard) {
 
         StringInputScanner askQCard = new StringInputScanner();
-       // askQCard.setMessage(qCard.getMessage());
+        askQCard.setMessage(qCard);
         return prompt.getUserInput(askQCard);
 
     }
 
 
     @Override
-    public int askVoteQuestion() {
+    public String askVoteQuestion(String[] answerList) {
 
-        IntegerInputScanner vote = new IntegerRangeInputScanner(1, NUMBER_OF_PLAYERS);
+        MenuInputScanner vote = new MenuInputScanner(answerList);
         vote.setError(Messages.VOTE_ERROR);
 
         vote.setMessage(Messages.VOTE_QUESTION);
-        return prompt.getUserInput(vote);
+        return prompt.getUserInput(vote).toString();
     }
 
 

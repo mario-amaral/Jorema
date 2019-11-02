@@ -13,9 +13,9 @@ public interface Display {
 
     public void showMessage(String message);
 
-    public String askQuestionCard(QCard qcard);
+    public String askQuestionCard(String qCard);
 
-    public int askVoteQuestion();
+    public String askVoteQuestion(String[] answersList);
 
     public void showResult(HashMap<String,String> winnerMap);
 

@@ -12,7 +12,10 @@ public class ClientApp {
         try {
 
             System.out.println("Trying to establish connection");
-            new Client ("localhost", 6666);
+            Client client = new Client ("localhost", 6666, new DisplayImp());
+
+            client.init();
+
 
         } catch (NumberFormatException ex) {
 
