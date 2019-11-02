@@ -72,7 +72,7 @@ public class DisplayImp implements Display {
         return prompt.getUserInput(vote);
         
 
-=======
+
     }
 
     @Override
@@ -82,7 +82,7 @@ public class DisplayImp implements Display {
 
     @Override
     public void showVoteQuestion() {
->>>>>>> 028ee617235f68c40b83d2bfb83a9eb103d3b319
+
 
     }
 
@@ -98,12 +98,12 @@ public class DisplayImp implements Display {
     }
 
 
-=======
+
     public void showResult() {
 
     }
 
->>>>>>> 028ee617235f68c40b83d2bfb83a9eb103d3b319
+
     @Override
     public void showFinalResult() {
 
