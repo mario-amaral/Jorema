@@ -65,22 +65,8 @@ public class DisplayImp implements Display {
 
         vote.setMessage(Messages.VOTE_QUESTION);
         return prompt.getUserInput(vote);
-
-<<<<<<< HEAD
-
-=======
->>>>>>> a1e550d73acea65957248d30d63b114b8478bbfc
     }
 
-
-    @Override
-<<<<<<< HEAD
-    public void showVoteQuestion() {
-
-
-    }
-=======
->>>>>>> a1e550d73acea65957248d30d63b114b8478bbfc
 
     public void showResult(HashMap<String,String> winnerMap) {
 
@@ -95,25 +81,16 @@ public class DisplayImp implements Display {
     }
 
 
-<<<<<<< HEAD
-
-    public void showResult() {
-=======
     @Override
     public void showFinalResult(LinkedList<String> winners) {
->>>>>>> a1e550d73acea65957248d30d63b114b8478bbfc
+
 
         System.out.println(Messages.FINAL_RESULT);
         for (int i = 0; i < winners.size(); i++) {
 
-<<<<<<< HEAD
-
-    @Override
-    public void showFinalResult() {
-=======
             System.out.println(winners.get(i));
         }
->>>>>>> a1e550d73acea65957248d30d63b114b8478bbfc
+
 
         System.out.println(Messages.THANK_YOU);
     }
