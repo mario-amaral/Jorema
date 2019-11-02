@@ -2,6 +2,7 @@ package org.academiadecodigo.splicegirls.Jorema.Server;
 
 public class QCard {
 
+
     private String message;
 
     public String getMessage() {

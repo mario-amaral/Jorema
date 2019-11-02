@@ -7,7 +7,12 @@ import java.util.Map;
 
 public class PlayerStoreImp implements PlayerStore {
 
+<<<<<<< HEAD
     Map<String,Player> players;
+=======
+    @Override
+    public void addPlayer(String playerName) {
+>>>>>>> prompt
 
     public PlayerStoreImp(){
         players = new Hashtable<>();
