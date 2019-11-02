@@ -79,8 +79,7 @@ public class DisplayImp implements Display {
 
             System.out.println(name);
             System.out.println(winnerMap.get(name));
-            
-        };
+        }
 
     }
 
