@@ -187,6 +187,7 @@ public class Server {
 
             sendFinalResult();
 
+
         }
 
         private String readyCounter() {
@@ -227,6 +228,8 @@ public class Server {
 
         private void sendFinalResult() {
             LinkedList<Player> finalWinners = gameLogic.countScore(playerStore.getPlayerTable());
+
+            send(String.valueOf(finalWinners.size()));
 
             for (Player p: finalWinners) {
 
