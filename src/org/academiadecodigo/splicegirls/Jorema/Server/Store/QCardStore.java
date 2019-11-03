@@ -1,12 +1,14 @@
 package org.academiadecodigo.splicegirls.Jorema.Server.Store;
 
+import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
+
 public interface QCardStore {
 
-    public void addCard();
+    public void addCard(QCard card);
 
-    public void removeCard();
+    public void removeCard(QCard usedCard);
 
-    public void getCard();
+    public String getCard(int index);
 
     public String getRandomCard();
 

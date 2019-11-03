@@ -1,24 +1,56 @@
 package org.academiadecodigo.splicegirls.Jorema.Server.Store;
 
+import org.academiadecodigo.splicegirls.Jorema.Server.QCard;
+import org.academiadecodigo.splicegirls.Jorema.Server.QuestionList;
+import org.academiadecodigo.splicegirls.Jorema.Utils.Random;
+
+import java.util.LinkedList;
+
 public class QCardStoreImp implements QCardStore {
-    @Override
-    public void addCard() {
+
+    private LinkedList<QCard> qCardList;
+
+    public QCardStoreImp(LinkedList<QCard> qCardList, QuestionList qList) {
+
+        this.qCardList = qCardList;
+
+        for (int i = 0; i < qList.getQuestions().length; i++) {
+
+            qCardList.add(new QCard(qList.getQuestions()[i]));
+
+        }
 
     }
 
     @Override
-    public void removeCard() {
+    public void addCard(QCard card) {
+
+        qCardList.add(card);
 
     }
 
     @Override
-    public void getCard() {
+    public void removeCard(QCard usedCard) {
+
+        qCardList.remove(usedCard);
+
+    }
+
+    @Override
+    public String getCard(int index) {
+
+        QCard playedCard = qCardList.get(index);
+
+        removeCard(playedCard);
+
+        return playedCard.getMessage();
 
     }
 
     @Override
     public String getRandomCard() {
-        return "On christmas, my father always dressed up as _________";
+
+        return getCard(Random.getRandInt(0, qCardList.size()));
 
     }
 }
