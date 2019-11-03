@@ -15,34 +15,20 @@ public class Client {
     // The client socket
     private Socket socket;
     private Display display;
+    private String serverName;
+    private int serverPort;
 
     public Client(String serverName, int serverPort, Display display) {
 
+        this.serverName = serverName;
+        this.serverPort = serverPort;
         this.display = display;
-
-        try {
-
-            // Connect to server
-            socket = new Socket(serverName, serverPort);
-            System.out.println("Connected: " + socket);
-            //startConnection();
-
-        } catch (UnknownHostException ex) {
-
-            System.out.println("Unknown host: " + ex.getMessage());
-            System.exit(1);
-
-        } catch (IOException ex) {
-
-            System.out.println(ex.getMessage());
-            System.exit(1);
-        }
     }
 
+    public void startConnection() throws IOException {
 
-    public void init() {
-
-        System.out.println("INIT HAS BEGUN");
+            socket = new Socket(serverName, serverPort);
+            System.out.println("Connected: " + socket);
 
         try {
             BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));

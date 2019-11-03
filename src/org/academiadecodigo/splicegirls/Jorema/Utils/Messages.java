@@ -24,7 +24,8 @@ public class Messages {
                                            "　　.· ´¸.·*´¨) ¸.·*¨)\n" +
                                            "(¸.·´ (¸.·’* ⛧\n" +
             "Thank you for playing Jorema! See you next time!";
-    public static final String COMMAND_LINE_USAGE = "Usage: java JoremaServer [port_number]";
+    public static final String CLIENT_COMMAND_LINE_USAGE = "Usage: java -jar joremaclient [server_address] [server_port_number]";
+    public static final String SERVER_COMMAND_LINE_USAGE = "Usage: java -jar joremaserver [port_number] [number_of_players] [number_of_rounds]";
     public static final String WAITING_FOR_PLAYERS = "Waiting for all players to join the fight...";
     public static final String GO_COMMAND = "/go";
     public static final String GAME_START = "The Game is about to start! Get ready!";

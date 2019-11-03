@@ -3,6 +3,7 @@ package org.academiadecodigo.splicegirls.Jorema.Server;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStore;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStore;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
+import org.academiadecodigo.splicegirls.Jorema.Utils.Values;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -18,18 +19,19 @@ public class Server {
 
     int connectionCount = 0;
 
-    public  final int MINIMUM_NUMBER_OF_PLAYERS = 3;
-    public final int NUMBER_OF_PLAYERS = 2;
-    public final int NUMBER_OF_ROUNDS = 2;
+    private int numberOfPlayers;
+    private int numberOfRounds;
     private QCard randomQCard;
     private volatile int playersReady = 0;
     private volatile int playersReadyToReset = 0;
 
-    public Server(QCardStore qCardStore, PlayerStore playerStore, GameLogic gameLogic) {
+    public Server(int numberOfPlayers, int numberOfRounds, QCardStore qCardStore, PlayerStore playerStore, GameLogic gameLogic) {
 
         this.gameLogic = gameLogic;
         this.qCardStore = qCardStore;
         this.playerStore = playerStore;
+        this.numberOfPlayers = numberOfPlayers;
+        this.numberOfRounds = numberOfRounds;
     }
 
     private void start() {
@@ -89,9 +91,6 @@ public class Server {
     }
 
 
-
-
-
     private class ServerWorker implements Runnable {
 
         // Immutable state, no need to lock
@@ -116,7 +115,6 @@ public class Server {
         public void run() {
 
             System.out.println(threadName + " is now connected.");
-
             serverScript();
 
         }
@@ -127,10 +125,10 @@ public class Server {
             int currentRound = 1;
 
             //Sending the number of rounds
-            send(String.valueOf(NUMBER_OF_ROUNDS));
+            send(String.valueOf(numberOfRounds));
 
             //Sendign the number of players
-            send(String.valueOf(NUMBER_OF_PLAYERS));
+            send(String.valueOf(numberOfPlayers));
 
             //Asking player name
             playerName = readClientLine(threadName);
@@ -138,7 +136,7 @@ public class Server {
 
             send(checkReady());
 
-            while (currentRound <= NUMBER_OF_ROUNDS) {
+            while (currentRound <= numberOfRounds) {
 
                 generateRandomCard();
 
@@ -188,7 +186,7 @@ public class Server {
             } catch (IOException e) {
                 System.out.println("Receiving error on " + name + " : " + e.getMessage());
                 workers.remove(this);
-                if (connectionCount < MINIMUM_NUMBER_OF_PLAYERS){
+                if (connectionCount <= Values.MINIMUM_NUMBER_OF_PLAYERS){
                     sendAll(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS);
                     System.exit(-1);
                 }
@@ -217,7 +215,7 @@ public class Server {
                 while (true) {
 
                     try {
-                        if (playersReady == NUMBER_OF_PLAYERS) {
+                        if (playersReady == numberOfPlayers) {
                             lock.notifyAll();
                             break;
                         }
@@ -260,7 +258,7 @@ public class Server {
 
                 playersReadyToReset++;
 
-                if (playersReadyToReset == NUMBER_OF_PLAYERS) {
+                if (playersReadyToReset == numberOfPlayers) {
                     playersReady = 0;
                 }
             }
