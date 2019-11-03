@@ -46,11 +46,16 @@ public class QCardStoreImp implements QCardStore {
     @Override
     public QCard getRandomCard() {
 
-        QCard playedCard = getCard(Random.getRandInt(0, qCardList.size()));
+        QCard playedCard = getCard(Random.getRandInt(0, qCardList.size() -1)); //
 
-        removeCard(playedCard);
+        //removeCard(playedCard);
 
         return playedCard;
 
+    }
+
+    @Override
+    public boolean exists(QCard card) {
+        return qCardList.contains(card);
     }
 }

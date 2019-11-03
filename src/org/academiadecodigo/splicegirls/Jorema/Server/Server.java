@@ -19,6 +19,7 @@ public class Server {
     private volatile int playersReadyToReset = 0;
     private QCardStore qCardStore;
     private PlayerStore playerStore;
+    private QCard randomQCard;
 
 
     public Server(QCardStore qCardStore, PlayerStore playerStore, GameLogic gameLogic) {
@@ -96,10 +97,16 @@ public class Server {
             for (ServerWorker worker : workers) {
                 worker.send(message);
             }
-
         }
-
     }
+
+    private void generateRandomCard() {
+        randomQCard = qCardStore.getRandomCard();
+    }
+
+
+
+
 
     private class ServerWorker implements Runnable {
 
@@ -166,7 +173,13 @@ public class Server {
 
             while (currentRound <= Values.NUMBER_OF_ROUNDS) {
 
-                send(qCardStore.getRandomCard().getMessage());
+                generateRandomCard();
+
+                send(checkReady());
+
+                send(randomQCard.getMessage());
+
+                discardCard();
 
                 playerStore.getPlayer(name).setCurrentAnswer(readClientLine());
 
@@ -238,8 +251,6 @@ public class Server {
         }
 
 
-
-
         private void resetReadyCounter(){
 
             synchronized (lock) {
@@ -259,6 +270,14 @@ public class Server {
 
         }
 
+        private void discardCard() {
+
+            synchronized (lock) {
+                if (qCardStore.exists(randomQCard)) {
+                    qCardStore.removeCard(randomQCard);
+                }
+            }
+        }
 
 
         private void send(String message) {

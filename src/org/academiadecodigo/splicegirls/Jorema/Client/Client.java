@@ -82,6 +82,8 @@ public class Client {
 
             display.showMessage("ROUND " + currentRound);
 
+            waitFor(Messages.GO_COMMAND, sockIn);
+
             String answer = display.askQuestionCard(sockIn.readLine());
             sockOut.writeBytes(answer);
 

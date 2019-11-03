@@ -12,4 +12,6 @@ public interface QCardStore {
 
     public QCard getRandomCard();
 
+    public boolean exists(QCard card);
+
 }
