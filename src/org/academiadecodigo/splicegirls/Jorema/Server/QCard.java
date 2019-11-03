@@ -5,6 +5,10 @@ public class QCard {
 
     private String message;
 
+    public QCard(String message) {
+        this.message = message;
+    }
+
     public String getMessage() {
         return message;
     }

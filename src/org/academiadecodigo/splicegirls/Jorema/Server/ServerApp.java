@@ -6,6 +6,8 @@ import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStore;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStoreImp;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
 
+import java.util.LinkedList;
+
 public class ServerApp {
 
     public final static int DEFAULT_PORT = 6666;
@@ -20,8 +22,11 @@ public class ServerApp {
                 port = Integer.parseInt(args[0]);
             }
 
+            LinkedList<QCard> qCardList = new LinkedList<QCard>();
+            QuestionList questionList = new QuestionList();
+
             PlayerStore playerStore = new PlayerStoreImp();
-            QCardStore qCardStore = new QCardStoreImp();
+            QCardStore qCardStore = new QCardStoreImp(qCardList, questionList);
             GameLogic gameLogic = new GameLogic();
 
 

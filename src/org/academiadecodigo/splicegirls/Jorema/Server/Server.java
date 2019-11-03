@@ -15,12 +15,13 @@ public class Server {
     private List<ServerWorker> workers = Collections.synchronizedList(new ArrayList<ServerWorker>());
     private QCardStore qCardStore;
     private PlayerStore playerStore;
+
     int connectionCount = 0;
 
     public  final int MINIMUM_NUMBER_OF_PLAYERS = 3;
     public final int NUMBER_OF_PLAYERS = 2;
     public final int NUMBER_OF_ROUNDS = 2;
-
+    private QCard randomQCard;
     private volatile int playersReady = 0;
     private volatile int playersReadyToReset = 0;
 
@@ -80,10 +81,16 @@ public class Server {
             for (ServerWorker worker : workers) {
                 worker.send(message);
             }
-
         }
-
     }
+
+    private void generateRandomCard() {
+        randomQCard = qCardStore.getRandomCard();
+    }
+
+
+
+
 
     private class ServerWorker implements Runnable {
 
@@ -133,7 +140,13 @@ public class Server {
 
             while (currentRound <= NUMBER_OF_ROUNDS) {
 
-                send(qCardStore.getRandomCard());
+                generateRandomCard();
+
+                send(checkReady());
+
+                send(randomQCard.getMessage());
+
+                discardCard();
 
                 playerStore.getPlayer(playerName).setCurrentAnswer(readClientLine(playerName));
 
@@ -259,6 +272,17 @@ public class Server {
             resetReadyCounter();
             return result;
         }
+
+
+        private void discardCard() {
+
+            synchronized (lock) {
+                if (qCardStore.exists(randomQCard)) {
+                    qCardStore.removeCard(randomQCard);
+                }
+            }
+        }
+
 
         private void send(String message) {
 
