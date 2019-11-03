@@ -16,7 +16,6 @@ public class ServerApp {
         int numberOfRounds = Values.NUMBER_OF_ROUNDS;
 
         try {
-
             if (args.length > 0) {
                 port = Integer.parseInt(args[0]);
                 numberOfPlayers = Integer.parseInt(args[1]);

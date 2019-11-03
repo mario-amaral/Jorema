@@ -13,7 +13,7 @@ import java.util.*;
 public class Server {
 
     private GameLogic gameLogic;
-    private List<ServerWorker> workers = Collections.synchronizedList(new ArrayList<ServerWorker>());
+    private List<ServerWorker> workers = Collections.synchronizedList(new ArrayList<>());
     private QCardStore qCardStore;
     private PlayerStore playerStore;
 
@@ -34,10 +34,6 @@ public class Server {
         this.numberOfRounds = numberOfRounds;
     }
 
-    private void start() {
-
-    }
-
     public void startConnection(int port) {
 
 
@@ -45,7 +41,10 @@ public class Server {
             Lock lock = new Lock();
 
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Server started: " + serverSocket);
+            System.out.println("** Server started: " + serverSocket + " **");
+            System.out.println("** Game will have a maximum number of " + numberOfPlayers + " players and end after" + numberOfRounds + " rounds. **");
+            System.out.println(Messages.SERVER_SUGGEST_COMMAND_LINE_USAGE);
+            System.out.println(Messages.SERVER_COMMAND_LINE_USAGE);
 
             while (true) {
 
@@ -265,12 +264,10 @@ public class Server {
         }
 
         private String checkReady() {
-
             String result = readyCounter();
             resetReadyCounter();
             return result;
         }
-
 
         private void discardCard() {
 
@@ -280,7 +277,6 @@ public class Server {
                 }
             }
         }
-
 
         private void send(String message) {
 

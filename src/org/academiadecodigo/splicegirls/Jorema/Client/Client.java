@@ -10,9 +10,6 @@ import java.util.LinkedList;
 
 public class Client {
 
-    public final static String DEFAULT_NAME = "CLIENT";
-
-    // The client socket
     private Socket socket;
     private Display display;
     private String serverName;
@@ -25,20 +22,26 @@ public class Client {
         this.display = display;
     }
 
-    public void startConnection() throws IOException {
-
-            socket = new Socket(serverName, serverPort);
-            System.out.println("Connected: " + socket);
+    public void startConnection(){
 
         try {
+            socket = new Socket(serverName, serverPort);
+            System.out.println("Connected: " + socket);
             BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             DataOutputStream sockOut = new DataOutputStream(socket.getOutputStream());
             gameStart(sockIn, sockOut);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (UnknownHostException e) {
+
+            System.out.println(e.getMessage());
+            System.exit(1);
+
+        } catch (IOException ex) {
+
+            System.out.println(Messages.CANNOT_CONNECT_TO_SERVER);
+            System.exit(1);
         }
-    }
+}
 
     public void gameStart(BufferedReader sockIn, DataOutputStream sockOut) {
 
@@ -48,9 +51,7 @@ public class Client {
         System.out.println("Game will have " + numberOfRounds + " rounds.");
 
         int numberOfPlayers = receiveNumber(sockIn);
-        System.out.println(numberOfPlayers + " players will be joining in");
-
-        System.out.println("GAME HAS STARTED");
+        System.out.println(numberOfPlayers + " players will be joining in.\n");
 
         display.showWelcomeMessage();
         try {
@@ -182,106 +183,4 @@ public class Client {
         }
         return messageFromServer;
     }
-
-/*
-    // Starts handling messages
-    private void startConnection() {
-
-        // Creates a new thread to handle incoming server messages
-        Thread thread = new Thread(new ChatRunnable());
-        thread.start();
-
-        try {
-
-            BufferedWriter sockOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
-
-            while (!socket.isClosed()) {
-
-                String consoleMessage = null;
-
-                try {
-
-                    // Blocks waiting for user input
-                    consoleMessage = consoleIn.readLine();
-
-                } catch (IOException ex) {
-                    System.out.println("Error reading from console: " + ex.getMessage());
-                    break;
-                }
-
-                if (consoleMessage == null || consoleMessage.equals("/quit")) {
-                    break;
-                }
-
-
-                sockOut.write(consoleMessage);
-                sockOut.newLine();
-                sockOut.flush();
-
-            }
-
-            try {
-
-                consoleIn.close();
-                sockOut.close();
-                socket.close();
-
-            } catch (IOException ex) {
-                System.out.println("Error closing connection: " + ex.getMessage());
-            }
-
-        } catch (IOException ex) {
-
-            System.out.println("Error sending message to server: " + ex.getMessage());
-
-        }
-    }
-
-    // Runnable to handle incoming messages from the server
-    private class ChatRunnable implements Runnable {
-
-        @Override
-        public void run() {
-
-            try {
-
-                BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                while (!socket.isClosed()) {
-
-                    // Block waiting for incoming messages from server
-                    String incomingMessage = sockIn.readLine();
-
-                    if (incomingMessage != null) {
-
-                        System.out.println(incomingMessage);
-
-                    } else {
-
-                        try {
-
-                            System.out.println("Connection closed, exiting...");
-                            sockIn.close();
-                            socket.close();
-
-                        } catch (IOException ex) {
-                            System.out.println("Error closing connection: " + ex.getMessage());
-                        }
-
-                    }
-
-                }
-            } catch (SocketException ex) {
-                // Socket closed by other thread, no need for special handling
-            } catch (IOException ex) {
-                System.out.println("Error reading from server: " + ex.getMessage());
-            }
-
-            // Server closed, but main thread blocked in console readline
-            System.exit(0);
-
-        }
-    }
-*/
 }
