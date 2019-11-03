@@ -37,20 +37,20 @@ public class QCardStoreImp implements QCardStore {
     }
 
     @Override
-    public String getCard(int index) {
+    public QCard getCard(int index) {
 
-        QCard playedCard = qCardList.get(index);
-
-        removeCard(playedCard);
-
-        return playedCard.getMessage();
+        return qCardList.get(index);
 
     }
 
     @Override
-    public String getRandomCard() {
+    public QCard getRandomCard() {
 
-        return getCard(Random.getRandInt(0, qCardList.size()));
+        QCard playedCard = getCard(Random.getRandInt(0, qCardList.size()));
+
+        removeCard(playedCard);
+
+        return playedCard;
 
     }
 }

@@ -8,8 +8,8 @@ public interface QCardStore {
 
     public void removeCard(QCard usedCard);
 
-    public String getCard(int index);
+    public QCard getCard(int index);
 
-    public String getRandomCard();
+    public QCard getRandomCard();
 
 }

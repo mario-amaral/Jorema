@@ -166,7 +166,7 @@ public class Server {
 
             while (currentRound <= Values.NUMBER_OF_ROUNDS) {
 
-                send(qCardStore.getRandomCard());
+                send(qCardStore.getRandomCard().getMessage());
 
                 playerStore.getPlayer(name).setCurrentAnswer(readClientLine());
 
