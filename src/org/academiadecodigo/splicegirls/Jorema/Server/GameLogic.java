@@ -5,9 +5,38 @@ import java.util.Map;
 
 public class GameLogic {
 
-    public LinkedList<Player> countVotes(Map<String, Player > hashtable ) {
+    public LinkedList<Player> returnRoundWinners(Map<String, Player> hashtable) {
+
+        countVotes(hashtable);
 
         Player p;
+
+        LinkedList<Player> winners = new LinkedList<>();
+        int maxVotes = 0;
+
+        for (String i: hashtable.keySet()){
+            p = hashtable.get(i);
+
+            if (p.getVotes() > maxVotes){
+                maxVotes = p.getVotes();
+            }
+        }
+
+        for (String i: hashtable.keySet()){
+            p = hashtable.get(i);
+
+            if (p.getVotes() == maxVotes){
+                winners.add(p);
+            }
+        }
+
+        incrementScore(winners);
+        resetVotes(hashtable);
+
+        return winners;
+    }
+
+    public void countVotes(Map<String, Player> hashtable){
         Player p1;
         Player p2;
 
@@ -21,37 +50,24 @@ public class GameLogic {
                 }
             }
         }
-
-        LinkedList<Player> winners = new LinkedList<>();
-        int winnerVotes = 0;
-
-        for (String i: hashtable.keySet()){
-            p = hashtable.get(i);
-
-            if (p.getVotes() > winnerVotes){
-                winnerVotes = p.getVotes();
-            }
-        }
-
-        for (String i: hashtable.keySet()){
-            p = hashtable.get(i);
-
-            if (p.getVotes() == winnerVotes){
-                winners.add(p);
-            }
-        }
-        incrementScore(winners);
-        return winners;
     }
+
 
     private void incrementScore(LinkedList<Player> winners) {
         for (Player p: winners) {
             p.incrementScore();
         }
-
     }
 
-    public LinkedList<Player> countScore(Map<String, Player > hashtable ) {
+    private void resetVotes(Map<String, Player > hashtable){
+        for (String key: hashtable.keySet()){
+            hashtable.get(key).resetVotes();
+        }
+    }
+
+
+
+    public LinkedList<Player> returnFinalWinners(Map<String, Player> hashtable ) {
 
         Player p;
 
@@ -73,7 +89,15 @@ public class GameLogic {
                 finalWinners.add(p);
             }
         }
-        incrementScore(finalWinners);
+
+        resetScore(hashtable);
+
         return finalWinners;
+    }
+
+    private void resetScore(Map<String, Player > hashtable){
+        for (String key: hashtable.keySet()){
+            hashtable.get(key).resetScore();
+        }
     }
 }
