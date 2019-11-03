@@ -15,7 +15,9 @@ public class Server {
     private List<ServerWorker> workers = Collections.synchronizedList(new ArrayList<ServerWorker>());
     private QCardStore qCardStore;
     private PlayerStore playerStore;
+    int connectionCount = 0;
 
+    public  final int MINIMUM_NUMBER_OF_PLAYERS = 3;
     public final int NUMBER_OF_PLAYERS = 2;
     public final int NUMBER_OF_ROUNDS = 2;
 
@@ -35,7 +37,6 @@ public class Server {
 
     public void startConnection(int port) {
 
-        int connectionCount = 0;
 
         try {
             Lock lock = new Lock();
@@ -107,7 +108,7 @@ public class Server {
         @Override
         public void run() {
 
-            System.out.println("Thread " + threadName + " started");
+            System.out.println(threadName + " is now connected.");
 
             serverScript();
 
@@ -152,6 +153,7 @@ public class Server {
             }
 
             sendFinalResult();
+            connectionCount = 0;
 
         }
 
@@ -161,20 +163,24 @@ public class Server {
 
             try {
                 line = in.readLine();
-                if (line == null) {
+                if (line == null || line.isEmpty()) {
 
                     System.out.println(threadName + " closed, exiting...");
-                    removePlayer(name);
                     in.close();
                     clientSocket.close();
+                    removePlayer(name);
+                    workers.remove(this);
                     return null;
-
                 }
             } catch (IOException e) {
-                System.out.println(threadName + " closed, exiting...");
-                removePlayer(name);
-                e.printStackTrace();
+                System.out.println("Receiving error on " + name + " : " + e.getMessage());
+                workers.remove(this);
+                if (connectionCount < MINIMUM_NUMBER_OF_PLAYERS){
+                    sendAll(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS);
+                    System.exit(-1);
+                }
             }
+
             return line;
         }
 
@@ -257,7 +263,6 @@ public class Server {
         private void send(String message) {
 
             try {
-
                 out.writeBytes(message + "\n");
 
             } catch (IOException ex) {

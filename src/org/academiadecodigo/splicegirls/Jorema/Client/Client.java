@@ -69,27 +69,27 @@ public class Client {
         display.showWelcomeMessage();
         try {
 
-            sockOut.writeBytes(display.askName());
+            sendToServer(display.askName(),sockOut);
 
             display.showMessage(Messages.WAITING_FOR_PLAYERS);
-            System.out.println(" waiting");
 
             waitFor(Messages.GO_COMMAND, sockIn);
-            System.out.println("out of waiting");
 
         while (currentRound <= numberOfRounds) {
 
             display.showMessage("ROUND " + currentRound);
 
             String answer = display.askQuestionCard(sockIn.readLine());
-            sockOut.writeBytes(answer);
+
+            sendToServer(answer, sockOut);
 
             display.showMessage(Messages.WAITING_FOR_ANSWERS);
 
             waitFor(Messages.GO_COMMAND, sockIn);
 
             String vote = display.askVoteQuestion(createAnswersArray(numberOfPlayers, sockIn));
-            sockOut.writeBytes(vote);
+
+            sendToServer(vote, sockOut);
 
             display.showMessage(Messages.WAITING_FOR_VOTES);
 
@@ -98,16 +98,32 @@ public class Client {
             display.showResult(createResultMap(sockIn));
 
             display.showMessage(Messages.ROUND_OVER);
+
             currentRound++;
         }
 
-            System.out.println("out of the loop");
-            display.showFinalResult(createWinnerList(sockIn));
+        display.showFinalResult(createWinnerList(sockIn));
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendToServer(String message, DataOutputStream sockOut){
+
+        try {
+            if (socket.isClosed()){
+                System.out.println(Messages.SERVER_NOT_CONNECTED_ERROR);
+                System.exit(-1);
+            }
+            sockOut.writeBytes(message);
+        } catch (IOException e) {
+            System.out.println(Messages.SERVER_NOT_CONNECTED_ERROR + e.getMessage());
+            System.exit(-1);
+            e.printStackTrace();
+        }
+
     }
 
     private String[] createAnswersArray(int numberOfPlayers, BufferedReader sockIn) throws IOException {
@@ -136,7 +152,7 @@ public class Client {
         int numOfWinners = receiveNumber(sockIn);
 
         for (int i = 0; i < numOfWinners; i++) {
-            winnerList.add(receiveString(sockIn));
+            winnerList.add(receiveMsg(sockIn));
         }
         return winnerList;
     }
@@ -144,7 +160,7 @@ public class Client {
     private void waitFor(String key,BufferedReader sockIn){
 
             while (true){
-                if (receiveString(sockIn).equals(key)){
+                if (receiveMsg(sockIn).equals(key)){
                     break;
                 }
             }
@@ -152,41 +168,28 @@ public class Client {
     }
 
     private int receiveNumber(BufferedReader sockIn){
-
-        String messageFromServer;
-        int number = 0;
-
-        try {
-            messageFromServer = sockIn.readLine();
-            if (messageFromServer == null){
-                System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
-                System.exit(-1);
-            } else {
-                number = Integer.parseInt(messageFromServer);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
-            System.exit(-1);
-        }
-        return number;
+        return Integer.parseInt(receiveMsg(sockIn));
     }
 
-    private String receiveString(BufferedReader sockIn){
+    private String receiveMsg(BufferedReader sockIn){
 
         String messageFromServer = null;
 
         try {
             messageFromServer = sockIn.readLine();
-            if (messageFromServer == null) {
-                System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
+            if (messageFromServer == null){
+                System.out.println(Messages.SERVER_NOT_CONNECTED_ERROR);
+                System.exit(-1);
+            }
+
+            if (messageFromServer.equals(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS)){
+                System.out.println(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS);
                 System.exit(-1);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
+            System.out.println(Messages.SERVER_NOT_CONNECTED_ERROR);
             System.exit(-1);
         }
         return messageFromServer;

@@ -19,5 +19,6 @@ public class Messages {
     public static final String WAITING_FOR_VOTES = "Waiting for all votes, please wait very much...";
     public static final String ROUND_OVER = "Round over!";
 
-    public static final String SERVER_NOT_CONNECTED_ERRO = "Server not connected. Exiting player client...";
+    public static final String SERVER_NOT_CONNECTED_ERROR = "Server not connected. Exiting player client...";
+    public static final String PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS = "A player disconnected. Not enough players to continue the game. Exiting...";
 }
