@@ -4,7 +4,6 @@ import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStore;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStore;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Values;
-import org.w3c.dom.ls.LSOutput;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -214,7 +213,7 @@ public class Server {
         }
 
         private void sendRoundResults() {
-            LinkedList<Player> winners = gameLogic.countVotes(playerStore.getPlayerTable());
+            LinkedList<Player> winners = gameLogic.returnRoundWinners(playerStore.getPlayerTable());
 
             send(String.valueOf(winners.size()));
 
@@ -227,7 +226,7 @@ public class Server {
         }
 
         private void sendFinalResult() {
-            LinkedList<Player> finalWinners = gameLogic.countScore(playerStore.getPlayerTable());
+            LinkedList<Player> finalWinners = gameLogic.returnFinalWinners(playerStore.getPlayerTable());
 
             send(String.valueOf(finalWinners.size()));
 
