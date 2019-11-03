@@ -14,10 +14,7 @@ import java.util.LinkedList;
 
 public class DisplayImp implements Display {
 
-
     private Prompt prompt = new Prompt(System.in, System.out);
-
-
 
     @Override
     public void showWelcomeMessage() {
@@ -51,7 +48,6 @@ public class DisplayImp implements Display {
 
     }
 
-
     @Override
     public String askVoteQuestion(String[] answerList) {
 
@@ -64,7 +60,6 @@ public class DisplayImp implements Display {
         return answerList[index] + "\n";
     }
 
-
     public void showResult(HashMap<String,String> winnerMap) {
 
         System.out.println(Messages.SHOW_RESULT);
@@ -74,20 +69,16 @@ public class DisplayImp implements Display {
             System.out.println(name);
             System.out.println(winnerMap.get(name));
         }
-
     }
-
 
     @Override
     public void showFinalResult(LinkedList<String> winners) {
-
 
         System.out.println(Messages.FINAL_RESULT);
         for (int i = 0; i < winners.size(); i++) {
 
             System.out.println(winners.get(i));
         }
-
 
         System.out.println(Messages.THANK_YOU);
     }

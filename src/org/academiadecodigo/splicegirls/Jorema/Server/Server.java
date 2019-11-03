@@ -28,16 +28,8 @@ public class Server {
         this.playerStore = playerStore;
     }
 
-
     private void start() {
 
-
-    }
-
-    private void setUpPlayer(String name) {
-
-//        gameLogic.addPlayer(name);
-//        System.out.println();
 
     }
 
@@ -81,10 +73,6 @@ public class Server {
         } catch (IOException e) {
             System.out.println("Unable to start server on port " + port);
         }
-
-
-        //gameLogic.addPlayer(name);
-
     }
 
 
@@ -142,7 +130,7 @@ public class Server {
 
                     System.out.println("Player " + name + " closed, exiting...");
 
-                    //playerStore.removePlayer(name);
+                    playerStore.removePlayer(name);
                     in.close();
                     clientSocket.close();
                     return null;
@@ -186,7 +174,6 @@ public class Server {
             }
 
             sendFinalResult();
-
 
         }
 
@@ -237,9 +224,6 @@ public class Server {
             }
         }
 
-
-
-
         private void resetReadyCounter(){
 
             synchronized (lock) {
@@ -251,6 +235,7 @@ public class Server {
                 }
             }
         }
+
         private String checkReady() {
 
             String result = readyCounter();
@@ -258,8 +243,6 @@ public class Server {
             return result;
 
         }
-
-
 
         private void send(String message) {
 
@@ -272,13 +255,10 @@ public class Server {
             }
         }
 
-
     }
-
 
     private class Lock {
 
 
     }
-
 }

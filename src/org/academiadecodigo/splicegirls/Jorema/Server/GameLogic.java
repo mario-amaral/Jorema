@@ -1,10 +1,5 @@
 package org.academiadecodigo.splicegirls.Jorema.Server;
 
-import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStore;
-import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStore;
-
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Map;
 
