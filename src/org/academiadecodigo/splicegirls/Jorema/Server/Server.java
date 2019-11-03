@@ -3,24 +3,25 @@ package org.academiadecodigo.splicegirls.Jorema.Server;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStore;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStore;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
+import org.academiadecodigo.splicegirls.Jorema.Utils.Values;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
 
     private GameLogic gameLogic;
-    private List<ServerWorker> workers = Collections.synchronizedList(new ArrayList<ServerWorker>());
+    private List<GameWorker> gameWorkers = Collections.synchronizedList(new ArrayList<GameWorker>());
+    //private List<ErrWriter> errWriters = Collections.synchronizedList(new ArrayList<ErrWriter>());
     private QCardStore qCardStore;
     private PlayerStore playerStore;
 
     int connectionCount = 0;
 
-    public  final int MINIMUM_NUMBER_OF_PLAYERS = 3;
-    public final int NUMBER_OF_PLAYERS = 2;
-    public final int NUMBER_OF_ROUNDS = 2;
     private QCard randomQCard;
     private volatile int playersReady = 0;
     private volatile int playersReadyToReset = 0;
@@ -32,9 +33,6 @@ public class Server {
         this.playerStore = playerStore;
     }
 
-    private void start() {
-
-    }
 
     public void startConnection(int port) {
 
@@ -50,18 +48,33 @@ public class Server {
                 // Block waiting for client connections
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Player client accepted: " + clientSocket);
+                connectionCount++;
+
+
+                if (connectionCount > Values.NUMBER_OF_PLAYERS){
+                    try {
+                        DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+                        out.writeBytes(Messages.ROOM_FULL);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } finally {
+                        clientSocket.close();
+                    }
+                }
 
                 try {
                     // Create a new Server Worker
-                    connectionCount++;
                     String name = "Player-" + connectionCount;
-                    ServerWorker worker = new ServerWorker(name, clientSocket, lock);
-                    workers.add(worker);
+                    GameWorker gameWorker = new GameWorker(name, clientSocket, lock);
+                    //ErrWriter errWriter = new ErrWriter(name, clientSocket);
 
-                    // Serve the client connection with a new Thread
-                    Thread thread = new Thread(worker);
-                    thread.setName(name);
-                    thread.start();
+                    gameWorkers.add(gameWorker);
+                   // errWriters.add(errWriter);
+
+                    ExecutorService fixedThreadPool = Executors.newFixedThreadPool(Values.NUMBER_OF_PLAYERS * 2);
+
+                    fixedThreadPool.submit(gameWorker);
+                    //fixedThreadPool.submit(errWriter);
 
                 } catch (IOException ex) {
                     System.out.println("Error receiving client connection: " + ex.getMessage());
@@ -76,9 +89,9 @@ public class Server {
     private void sendAll(String message) {
 
         // Acquire lock for safe iteration
-        synchronized (workers) {
+        synchronized (gameWorkers) {
 
-            for (ServerWorker worker : workers) {
+            for (GameWorker worker : gameWorkers) {
                 worker.send(message);
             }
         }
@@ -91,8 +104,7 @@ public class Server {
 
 
 
-
-    private class ServerWorker implements Runnable {
+    private class GameWorker implements Runnable {
 
         // Immutable state, no need to lock
         final private String threadName; // !!
@@ -101,7 +113,7 @@ public class Server {
         final private DataOutputStream out;
         final private Lock lock;
 
-        private ServerWorker(String threadName, Socket clientSocket, Lock lock) throws IOException {
+        private GameWorker(String threadName, Socket clientSocket, Lock lock) throws IOException {
 
             this.threadName = threadName;
             this.clientSocket = clientSocket;
@@ -126,11 +138,13 @@ public class Server {
             String playerName = threadName; //this will be renamed below, when we receive the playername form client
             int currentRound = 1;
 
+            send(Messages.GAME_START);
+
             //Sending the number of rounds
-            send(String.valueOf(NUMBER_OF_ROUNDS));
+            send(String.valueOf(Values.NUMBER_OF_ROUNDS));
 
             //Sendign the number of players
-            send(String.valueOf(NUMBER_OF_PLAYERS));
+            send(String.valueOf(Values.NUMBER_OF_PLAYERS));
 
             //Asking player name
             playerName = readClientLine(threadName);
@@ -138,7 +152,7 @@ public class Server {
 
             send(checkReady());
 
-            while (currentRound <= NUMBER_OF_ROUNDS) {
+            while (currentRound <= Values.NUMBER_OF_ROUNDS) {
 
                 generateRandomCard();
 
@@ -182,13 +196,13 @@ public class Server {
                     in.close();
                     clientSocket.close();
                     removePlayer(name);
-                    workers.remove(this);
+                    gameWorkers.remove(this);
                     return null;
                 }
             } catch (IOException e) {
                 System.out.println("Receiving error on " + name + " : " + e.getMessage());
-                workers.remove(this);
-                if (connectionCount < MINIMUM_NUMBER_OF_PLAYERS){
+                gameWorkers.remove(this);
+                if (connectionCount < Values.MINIMUM_NUMBER_OF_PLAYERS){
                     sendAll(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS);
                     System.exit(-1);
                 }
@@ -217,7 +231,7 @@ public class Server {
                 while (true) {
 
                     try {
-                        if (playersReady == NUMBER_OF_PLAYERS) {
+                        if (playersReady == Values.NUMBER_OF_PLAYERS) {
                             lock.notifyAll();
                             break;
                         }
@@ -260,7 +274,7 @@ public class Server {
 
                 playersReadyToReset++;
 
-                if (playersReadyToReset == NUMBER_OF_PLAYERS) {
+                if (playersReadyToReset == Values.NUMBER_OF_PLAYERS) {
                     playersReady = 0;
                 }
             }
@@ -294,6 +308,71 @@ public class Server {
             }
         }
     }
+
+   /* private class ErrWriter implements Runnable {
+        // Immutable state, no need to lock
+        final private String name;
+        final private Socket clientSocket;
+        final private BufferedReader in;
+        final private BufferedWriter out;
+
+
+        private ErrWriter(String name, Socket clientSocket) throws IOException {
+
+            this.name = name;
+            this.clientSocket = clientSocket;
+
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+
+        }
+
+        @Override
+        public void run() {
+
+            System.out.println("Thread " + name + " started");
+
+            try {
+
+
+                while (!clientSocket.isClosed()) {
+
+                    // Blocks waiting for client messages
+                    String line = in.readLine();
+
+                    if (line == null) {
+
+                        System.out.println("Client " + name + " closed, exiting...");
+                        errWriters.remove(this);
+
+                        in.close();
+                        clientSocket.close();
+                        continue;
+
+                    }
+
+                }
+
+
+            } catch (IOException ex) {
+                System.out.println("Receiving error on " + name + " : " + ex.getMessage());
+            }
+
+        }
+
+        private void send(String origClient, String message) {
+
+            try {
+
+                out.write(origClient + ": " + message);
+                out.newLine();
+                out.flush();
+
+            } catch (IOException ex) {
+                System.out.println("Error sending message to Client " + name + " : " + ex.getMessage());
+            }
+        }
+    } */
 
     private class Lock {}
 }

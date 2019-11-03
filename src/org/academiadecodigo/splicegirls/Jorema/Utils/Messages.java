@@ -17,7 +17,7 @@ public class Messages {
                                              "The results are in! Congratulations to the winner: ";
     public static final String FINAL_RESULT = "The winner has been decided! And their name is " +
                                               "【☆】★【☆】★【☆】★【☆】★【☆】\n";
-    public static final String THANK_YOU = "∧＿∧\n" +
+    public static final String THANK_YOU = "  ∧＿∧\n" +
                                            "（｡･ω･｡)つ━☆・*。\n" +
                                            "⊂　　 ノ 　　　・゜+.\n" +
                                            "しーＪ　　　°。+ *´¨)\n" +
@@ -34,6 +34,7 @@ public class Messages {
 
     public static final String SERVER_NOT_CONNECTED_ERROR = "Server not connected. Exiting player client...";
     public static final String PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS = "A player disconnected. Not enough players to continue the game. Exiting...";
+    public static final String ROOM_FULL = "The room is full! Try again in a week.";
 
 
 }

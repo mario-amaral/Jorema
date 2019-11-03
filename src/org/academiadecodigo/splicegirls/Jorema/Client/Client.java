@@ -1,12 +1,16 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
+import org.academiadecodigo.splicegirls.Jorema.Utils.ErrorMessages;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Client {
 
@@ -47,6 +51,10 @@ public class Client {
         try {
             BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             DataOutputStream sockOut = new DataOutputStream(socket.getOutputStream());
+            ExecutorService singleExecutor = Executors.newSingleThreadExecutor();
+
+            singleExecutor.submit(new MessageReader());
+
             gameStart(sockIn, sockOut);
 
         } catch (IOException e) {
@@ -58,11 +66,32 @@ public class Client {
 
         int currentRound = 1;
 
-        int numberOfRounds = receiveNumber(sockIn);
+        String checkRoom = "";
+        String unTested = readLine(sockIn);
+        if (isValidMsg(unTested)){
+            checkRoom = receiveMsg(unTested);
+        }
+
+        System.out.println(checkRoom);
+
+
+        int numberOfRounds = 1;
+        String numOfRoundsStrg = readLine(sockIn);
+        if (isValidMsg(numOfRoundsStrg)){
+            numberOfRounds = receiveNumber(numOfRoundsStrg);
+        }
+
         System.out.println("Game will have " + numberOfRounds + " rounds.");
 
-        int numberOfPlayers = receiveNumber(sockIn);
-        System.out.println(numberOfPlayers + " players will be joining in");
+
+        int numOfPlayers = 1;
+        String numOfPlayersStrg = readLine(sockIn);
+        if (isValidMsg(numOfPlayersStrg)){
+            numOfPlayers = receiveNumber(numOfPlayersStrg);
+        }
+
+
+        System.out.println(numberOfRounds + " players will be joining in");
 
         System.out.println("GAME HAS STARTED");
 
@@ -89,7 +118,7 @@ public class Client {
 
             waitFor(Messages.GO_COMMAND, sockIn);
 
-            String vote = display.askVoteQuestion(createAnswersArray(numberOfPlayers, sockIn));
+            String vote = display.askVoteQuestion(createAnswersArray(numberOfRounds, sockIn));
 
             sendToServer(vote, sockOut);
 
@@ -112,6 +141,18 @@ public class Client {
         }
     }
 
+    private String readLine(BufferedReader sockIn){
+        try {
+            return sockIn.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println(Messages.SERVER_NOT_CONNECTED_ERROR);
+            System.exit(-1);
+        }
+        return null;
+    }
+
+
     private void sendToServer(String message, DataOutputStream sockOut){
 
         try {
@@ -128,11 +169,21 @@ public class Client {
 
     }
 
-    private String[] createAnswersArray(int numberOfPlayers, BufferedReader sockIn) throws IOException {
-        String[] answers = new String[numberOfPlayers];
+    private String[] createAnswersArray(int numOfPlayers, BufferedReader sockIn) {
+        String[] answers = new String[numOfPlayers];
 
         for (int i = 0; i < answers.length; i++) {
-            answers[i] = sockIn.readLine();
+
+            String answer;
+            String unTested = readLine(sockIn);
+            if (isValidMsg(unTested)){
+                answer = receiveMsg(unTested);
+            } else {
+                i--;
+                continue;
+            }
+
+            answers[i] = answer;
         }
         return answers;
     }
@@ -162,98 +213,43 @@ public class Client {
     private void waitFor(String key,BufferedReader sockIn){
 
             while (true){
-                if (receiveMsg(sockIn).equals(key)){
+                String message = receiveMsg(readLine(sockIn));
+                if (message.equals(key)){
                     break;
                 }
             }
-            display.showMessage(Messages.GO_COMMAND);
     }
 
-    private int receiveNumber(BufferedReader sockIn){
-        return Integer.parseInt(receiveMsg(sockIn));
+    private int receiveNumber(String serverMsg){
+        return Integer.parseInt(receiveMsg(serverMsg));
     }
 
-    private String receiveMsg(BufferedReader sockIn){
+    private String receiveMsg(String serverMsg){
 
-        String messageFromServer = null;
 
-        try {
-            messageFromServer = sockIn.readLine();
-            if (messageFromServer == null){
+            if (serverMsg == null){
                 System.out.println(Messages.SERVER_NOT_CONNECTED_ERROR);
                 System.exit(-1);
             }
-
-            if (messageFromServer.equals(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS)){
+            if (serverMsg.equals(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS)){
                 System.out.println(Messages.PLAYER_DISCONNECTED_NOT_ENOUGH_PLAYERS);
                 System.exit(-1);
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println(Messages.SERVER_NOT_CONNECTED_ERROR);
-            System.exit(-1);
-        }
-        return messageFromServer;
+        return serverMsg;
     }
 
-/*
-    // Starts handling messages
-    private void startConnection() {
+    private boolean isValidMsg(String serverMsg) {
 
-        // Creates a new thread to handle incoming server messages
-        Thread thread = new Thread(new ChatRunnable());
-        thread.start();
-
-        try {
-
-            BufferedWriter sockOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
-
-            while (!socket.isClosed()) {
-
-                String consoleMessage = null;
-
-                try {
-
-                    // Blocks waiting for user input
-                    consoleMessage = consoleIn.readLine();
-
-                } catch (IOException ex) {
-                    System.out.println("Error reading from console: " + ex.getMessage());
-                    break;
-                }
-
-                if (consoleMessage == null || consoleMessage.equals("/quit")) {
-                    break;
-                }
-
-
-                sockOut.write(consoleMessage);
-                sockOut.newLine();
-                sockOut.flush();
-
-            }
-
-            try {
-
-                consoleIn.close();
-                sockOut.close();
-                socket.close();
-
-            } catch (IOException ex) {
-                System.out.println("Error closing connection: " + ex.getMessage());
-            }
-
-        } catch (IOException ex) {
-
-            System.out.println("Error sending message to server: " + ex.getMessage());
-
+        if (serverMsg.startsWith(ErrorMessages.ERR)
+                || serverMsg.startsWith(ErrorMessages.TIME)) {
+            return false;
         }
+        return true;
     }
 
-    // Runnable to handle incoming messages from the server
-    private class ChatRunnable implements Runnable {
+
+    private class MessageReader implements Runnable {
 
         @Override
         public void run() {
@@ -297,5 +293,5 @@ public class Client {
 
         }
     }
-*/
+
 }
