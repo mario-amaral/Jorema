@@ -10,7 +10,6 @@ public class ClientApp {
             Client client = new Client ("localhost", 6666, new DisplayImp());
             client.init();
 
-
         } catch (NumberFormatException ex) {
 
             System.out.println("Invalid port number " + args[1]);

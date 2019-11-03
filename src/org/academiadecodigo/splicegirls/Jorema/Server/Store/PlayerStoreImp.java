@@ -17,6 +17,11 @@ public class PlayerStoreImp implements PlayerStore {
     @Override
     public void addPlayer(String name) {
 
+        if(name == null){
+            System.err.println("Player name is null, can't add player");
+            return;
+        }
+
         if(players.keySet().contains(name)){
             System.out.println("There is already a player with that name");
         } else {

@@ -18,4 +18,6 @@ public class Messages {
     public static final String WAITING_FOR_ANSWERS = "Waiting for all answers...";
     public static final String WAITING_FOR_VOTES = "Waiting for all votes, please wait very much...";
     public static final String ROUND_OVER = "Round over!";
+
+    public static final String SERVER_NOT_CONNECTED_ERRO = "Server not connected. Exiting player client...";
 }

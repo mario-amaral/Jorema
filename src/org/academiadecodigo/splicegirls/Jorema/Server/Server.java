@@ -3,8 +3,6 @@ package org.academiadecodigo.splicegirls.Jorema.Server;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.PlayerStore;
 import org.academiadecodigo.splicegirls.Jorema.Server.Store.QCardStore;
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
-import org.academiadecodigo.splicegirls.Jorema.Utils.Values;
-import org.w3c.dom.ls.LSOutput;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -15,11 +13,14 @@ public class Server {
 
     private GameLogic gameLogic;
     private List<ServerWorker> workers = Collections.synchronizedList(new ArrayList<ServerWorker>());
-    private volatile int playersReady = 0;
-    private volatile int playersReadyToReset = 0;
     private QCardStore qCardStore;
     private PlayerStore playerStore;
 
+    public final int NUMBER_OF_PLAYERS = 2;
+    public final int NUMBER_OF_ROUNDS = 2;
+
+    private volatile int playersReady = 0;
+    private volatile int playersReadyToReset = 0;
 
     public Server(QCardStore qCardStore, PlayerStore playerStore, GameLogic gameLogic) {
 
@@ -29,7 +30,6 @@ public class Server {
     }
 
     private void start() {
-
 
     }
 
@@ -50,15 +50,11 @@ public class Server {
                 System.out.println("Player client accepted: " + clientSocket);
 
                 try {
-
                     // Create a new Server Worker
                     connectionCount++;
                     String name = "Player-" + connectionCount;
                     ServerWorker worker = new ServerWorker(name, clientSocket, lock);
-
                     workers.add(worker);
-//                    playerStore.addPlayer(name);
-
 
                     // Serve the client connection with a new Thread
                     Thread thread = new Thread(worker);
@@ -74,7 +70,6 @@ public class Server {
             System.out.println("Unable to start server on port " + port);
         }
     }
-
 
     private void sendAll(String message) {
 
@@ -92,16 +87,15 @@ public class Server {
     private class ServerWorker implements Runnable {
 
         // Immutable state, no need to lock
-        final private String name; // !!
+        final private String threadName; // !!
         final private Socket clientSocket;
         final private BufferedReader in;
         final private DataOutputStream out;
         final private Lock lock;
 
+        private ServerWorker(String threadName, Socket clientSocket, Lock lock) throws IOException {
 
-        private ServerWorker(String name, Socket clientSocket, Lock lock) throws IOException {
-
-            this.name = name;
+            this.threadName = threadName;
             this.clientSocket = clientSocket;
             this.lock = lock;
 
@@ -113,58 +107,42 @@ public class Server {
         @Override
         public void run() {
 
-            System.out.println("Thread " + name + " started");
+            System.out.println("Thread " + threadName + " started");
 
             serverScript();
 
         }
 
-        private String readClientLine() {
-
-            // Blocks waiting for client messages
-            String line = null;
-
-            try {
-                line = in.readLine();
-                if (line == null) {
-
-                    System.out.println("Player " + name + " closed, exiting...");
-
-                    playerStore.removePlayer(name);
-                    in.close();
-                    clientSocket.close();
-                    return null;
-
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return line;
-        }
-
         private void serverScript() {
 
+            String playerName = threadName; //this will be renamed below, when we receive the playername form client
             int currentRound = 1;
-            String name;
 
-            name = readClientLine();
-            playerStore.addPlayer(name);
+            //Sending the number of rounds
+            send(String.valueOf(NUMBER_OF_ROUNDS));
+
+            //Sendign the number of players
+            send(String.valueOf(NUMBER_OF_PLAYERS));
+
+            //Asking player name
+            playerName = readClientLine(threadName);
+            playerStore.addPlayer(playerName);
 
             send(checkReady());
 
-            while (currentRound <= Values.NUMBER_OF_ROUNDS) {
+            while (currentRound <= NUMBER_OF_ROUNDS) {
 
                 send(qCardStore.getRandomCard());
 
-                playerStore.getPlayer(name).setCurrentAnswer(readClientLine());
+                playerStore.getPlayer(playerName).setCurrentAnswer(readClientLine(playerName));
 
                 send(checkReady());
 
-                sendAll(playerStore.getPlayer(name).getCurrentAnswer());
+                sendAll(playerStore.getPlayer(playerName).getCurrentAnswer());
 
-                playerStore.getPlayer(name).setMyVote(readClientLine());
+                playerStore.getPlayer(playerName).setMyVote(readClientLine(playerName));
 
-                System.out.println(playerStore.getPlayer(name).getMyVote());
+                System.out.println(playerStore.getPlayer(playerName).getMyVote());
 
                 send(checkReady());
 
@@ -177,6 +155,39 @@ public class Server {
 
         }
 
+        private String readClientLine(String name) {
+
+            String line = null;
+
+            try {
+                line = in.readLine();
+                if (line == null) {
+
+                    System.out.println(threadName + " closed, exiting...");
+                    removePlayer(name);
+                    in.close();
+                    clientSocket.close();
+                    return null;
+
+                }
+            } catch (IOException e) {
+                System.out.println(threadName + " closed, exiting...");
+                removePlayer(name);
+                e.printStackTrace();
+            }
+            return line;
+        }
+
+        private void removePlayer(String name){
+
+            if (name.equals(threadName)) {
+                //Player not added yet, nothing to remove
+                return;
+            } else {
+                playerStore.removePlayer(name);
+            }
+        }
+
         private String readyCounter() {
 
             playersReadyToReset = 0;
@@ -187,7 +198,7 @@ public class Server {
                 while (true) {
 
                     try {
-                        if (playersReady == Values.NUMBER_OF_PLAYERS) {
+                        if (playersReady == NUMBER_OF_PLAYERS) {
                             lock.notifyAll();
                             break;
                         }
@@ -230,7 +241,7 @@ public class Server {
 
                 playersReadyToReset++;
 
-                if (playersReadyToReset == Values.NUMBER_OF_PLAYERS) {
+                if (playersReadyToReset == NUMBER_OF_PLAYERS) {
                     playersReady = 0;
                 }
             }
@@ -241,7 +252,6 @@ public class Server {
             String result = readyCounter();
             resetReadyCounter();
             return result;
-
         }
 
         private void send(String message) {
@@ -251,14 +261,10 @@ public class Server {
                 out.writeBytes(message + "\n");
 
             } catch (IOException ex) {
-                System.out.println("Error sending message to Client " + name + " : " + ex.getMessage());
+                System.out.println("Error sending message to " + threadName + " : " + ex.getMessage());
             }
         }
-
     }
 
-    private class Lock {
-
-
-    }
+    private class Lock {}
 }

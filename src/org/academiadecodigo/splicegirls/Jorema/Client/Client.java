@@ -1,7 +1,7 @@
 package org.academiadecodigo.splicegirls.Jorema.Client;
 
 import org.academiadecodigo.splicegirls.Jorema.Utils.Messages;
-import org.academiadecodigo.splicegirls.Jorema.Utils.Values;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -36,9 +36,7 @@ public class Client {
 
             System.out.println(ex.getMessage());
             System.exit(1);
-
         }
-
     }
 
 
@@ -49,36 +47,37 @@ public class Client {
         try {
             BufferedReader sockIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             DataOutputStream sockOut = new DataOutputStream(socket.getOutputStream());
-
-
             gameStart(sockIn, sockOut);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
     }
-
-
 
     public void gameStart(BufferedReader sockIn, DataOutputStream sockOut) {
 
         int currentRound = 1;
 
-        System.out.println("GAME HAS STARTEDED");
+        int numberOfRounds = receiveNumber(sockIn);
+        System.out.println("Game will have " + numberOfRounds + " rounds.");
+
+        int numberOfPlayers = receiveNumber(sockIn);
+        System.out.println(numberOfPlayers + " players will be joining in");
+
+        System.out.println("GAME HAS STARTED");
 
         display.showWelcomeMessage();
         try {
+
             sockOut.writeBytes(display.askName());
 
-        display.showMessage(Messages.WAITING_FOR_PLAYERS);
+            display.showMessage(Messages.WAITING_FOR_PLAYERS);
             System.out.println(" waiting");
 
-        waitFor(Messages.GO_COMMAND, sockIn);
+            waitFor(Messages.GO_COMMAND, sockIn);
             System.out.println("out of waiting");
 
-        while (currentRound <= Values.NUMBER_OF_ROUNDS) {
+        while (currentRound <= numberOfRounds) {
 
             display.showMessage("ROUND " + currentRound);
 
@@ -89,7 +88,7 @@ public class Client {
 
             waitFor(Messages.GO_COMMAND, sockIn);
 
-            String vote = display.askVoteQuestion(createAnswersArray(sockIn));
+            String vote = display.askVoteQuestion(createAnswersArray(numberOfPlayers, sockIn));
             sockOut.writeBytes(vote);
 
             display.showMessage(Messages.WAITING_FOR_VOTES);
@@ -106,16 +105,13 @@ public class Client {
             display.showFinalResult(createWinnerList(sockIn));
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-
-    private String[] createAnswersArray(BufferedReader sockIn) throws IOException {
-        String[] answers = new String[Values.NUMBER_OF_PLAYERS];
+    private String[] createAnswersArray(int numberOfPlayers, BufferedReader sockIn) throws IOException {
+        String[] answers = new String[numberOfPlayers];
 
         for (int i = 0; i < answers.length; i++) {
             answers[i] = sockIn.readLine();
@@ -131,38 +127,70 @@ public class Client {
         for (int i = 0; i < numOfWinners; i++) {
             resultMap.put(sockIn.readLine(), sockIn.readLine());
         }
-
         return resultMap;
     }
 
-    private LinkedList<String> createWinnerList (BufferedReader sockIn) throws IOException {
+    private LinkedList<String> createWinnerList (BufferedReader sockIn){
 
         LinkedList<String> winnerList = new LinkedList<>();
-        int numOfWinners = Integer.parseInt(sockIn.readLine());
+        int numOfWinners = receiveNumber(sockIn);
 
         for (int i = 0; i < numOfWinners; i++) {
-            winnerList.add(sockIn.readLine());
+            winnerList.add(receiveString(sockIn));
         }
-
         return winnerList;
     }
 
-
-
-
     private void waitFor(String key,BufferedReader sockIn){
-        try {
+
             while (true){
-                if (sockIn.readLine().equals(key)){
+                if (receiveString(sockIn).equals(key)){
                     break;
                 }
             }
             display.showMessage(Messages.GO_COMMAND);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
+    private int receiveNumber(BufferedReader sockIn){
+
+        String messageFromServer;
+        int number = 0;
+
+        try {
+            messageFromServer = sockIn.readLine();
+            if (messageFromServer == null){
+                System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
+                System.exit(-1);
+            } else {
+                number = Integer.parseInt(messageFromServer);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
+            System.exit(-1);
+        }
+        return number;
+    }
+
+    private String receiveString(BufferedReader sockIn){
+
+        String messageFromServer = null;
+
+        try {
+            messageFromServer = sockIn.readLine();
+            if (messageFromServer == null) {
+                System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
+                System.exit(-1);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println(Messages.SERVER_NOT_CONNECTED_ERRO);
+            System.exit(-1);
+        }
+        return messageFromServer;
+    }
 
 /*
     // Starts handling messages
